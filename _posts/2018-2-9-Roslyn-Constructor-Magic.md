@@ -8,6 +8,7 @@ excerpt_separator: <!--more-->
 Mostly, we are doing a line to line translation. E.g. every line in Python code roughly translates into a line of C#, preserving order. However, there are differences between Python and C# semantics, that, unfortunately, force SharPy to perform more complicated transformations.
 
 For example, implementations of ```__init__``` method may call parent class ```__init__``` anywhere in the body. This is not so for C# and base constructor calls, which have a form of
+
 ```csharp
 ClassName(): base(...){...}
 ```
