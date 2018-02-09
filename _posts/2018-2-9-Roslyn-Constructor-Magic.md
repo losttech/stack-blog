@@ -116,7 +116,7 @@ ConstructorInitializerSyntax ProcessBaseCall(ref BlockSyntax constructorBody) {
 }
 ```
 
-This finally gives us perfectly valid and oterwise nice
+This finally gives us perfectly valid and otherwise nice
 
 ```csharp
 class Base{}
@@ -128,4 +128,4 @@ class Derived: Base {
 }
 ```
 
-Of course this is not the end of it. There's a more complex scenario yet to handle: since Python's constructor potentially call can be anywhere in the body, somehow the code before it has to be injected into the ```: base(...)``` call to preserve semantics. Usually, that is done by introducing a static method(s) and calling them inside like this: ```: base(StaticMethod(...), ...)```. Or by having a factory method on the class. But this is a story for another post.
+Of course this is not the end of it. There's a more complex scenario yet to handle: since Python's constructor call potentially  can be anywhere in the body, somehow the code before it has to be injected into the ```: base(...)``` call to preserve semantics. Usually, that is done by introducing a static method(s) and calling them inside like this: ```Derived(): base(StaticMethod(...), ...)```. Or by having a factory method on the class. But this is a story for another post.
