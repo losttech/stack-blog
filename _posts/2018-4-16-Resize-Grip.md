@@ -5,7 +5,7 @@ categories: dynamic
 excerpt_separator: <!--more--> 
 ---
 
-Recently, we've released <a href="https://www.microsoft.com/en-us/store/p/stack-wm/9p4rj8rl7qgs">Stack WM 2.0</a>, that added <a href="https://losttech.software/stack-whatsnew.html#helpers">permanently visible elements</a>. In this blog post I am going to show you, how I used them to add a grip to my vertical layout,
+Recently, we've released <a href="https://www.microsoft.com/en-us/store/p/stack-wm/9p4rj8rl7qgs">Stack WM 2.0</a>, that added <a href="https://losttech.software/stack-whatsnew-2.0.html#helpers">permanently visible elements</a>. In this blog post I am going to show you, how I used them to add a grip to my vertical layout,
 that lets me redistribute space between the bottom and the top zones.
 
 <!--more-->

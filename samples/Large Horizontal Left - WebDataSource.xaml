@@ -1,0 +1,252 @@
+﻿<Grid
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:binding="clr-namespace:LostTech.Stack.Widgets.DataBinding;assembly=LostTech.Stack.Widgets"
+    xmlns:behavior="clr-namespace:LostTech.Stack.Behavior;assembly=Stack"
+    xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+    xmlns:sources="clr-namespace:LostTech.Stack.Widgets.DataSources;assembly=LostTech.Stack.Widgets"
+    xmlns:widgets="clr-namespace:LostTech.Stack.Widgets;assembly=LostTech.Stack.Widgets"
+    xmlns:zones="clr-namespace:LostTech.Stack.Zones;assembly=Stack"
+    zones:Layout.Version="2"
+    mc:Ignorable="d"
+    Width="1024" Height="576"
+    d:DesignWidth="1024"
+    d:DesignHeight="576"
+>
+    <Grid.Resources>
+        <ResourceDictionary>
+            <sys:Double x:Key="GripSize">80</sys:Double>
+            <sys:Double x:Key="GripFontSize">40</sys:Double>
+            <sources:WebDataSource x:Key="HanselmanAtom"
+                Url="https://www.hanselman.com/blog/SyndicationService.asmx/GetAtom"/>
+            <binding:XmlParser x:Key="XmlParser"/>
+            <binding:HtmlToTextConverter x:Key="HtmlToText"/>
+            <sources:RefreshableDataSource x:Key="TimeSource" 
+              Source="{c:Binding sys:DateTime.Now}"
+              sources:DataSource.RefreshInterval="0:0:1"
+              />
+            <DataTemplate x:Key="ArticleItemViewTemplate">
+              <Grid>
+                  <Grid>
+                      <StackPanel>
+                          <Grid Margin="12,12,12,0">
+                              <Grid.RowDefinitions>
+                                  <RowDefinition Height="Auto" />
+                                  <RowDefinition Height="*" />
+                                  <RowDefinition Height="*" />
+                              </Grid.RowDefinitions>
+                              <TextBlock Grid.Row="0"
+                                        Text="{Binding pubDate}"
+                                        TextWrapping="NoWrap"
+                                        Foreground="Gray"
+                                        FontSize="14"
+                                        />
+
+                              <TextBlock Grid.Row="1"
+                                        Margin="0,8,0,0"
+                                        TextWrapping="Wrap"
+                                        MaxHeight="52"
+                                        TextTrimming="CharacterEllipsis"
+                                        Foreground="White"
+                                        FontWeight="Bold" FontSize="18"
+                              >
+                                <TextBlock.Resources>
+                                  <Style TargetType="{x:Type Hyperlink}">
+                                    <Setter Property="Foreground" Value="LightGray" />
+                                    <Setter Property="ForceCursor" Value="True" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="TextDecorations" Value="None" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="Khaki" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                                </TextBlock.Resources>
+                                <Hyperlink CommandParameter="{Binding link}" Command="{x:Static widgets:Commands.LaunchUrl}">
+                                  <Run Text="{Binding title}" />
+                                </Hyperlink>
+                              </TextBlock>
+
+                              <TextBlock Grid.Row="2"
+                                        Margin="0,4,0,12"
+                                        Text="{Binding 'description.#cdata-section', Converter={StaticResource HtmlToText}}"
+                                        TextWrapping="Wrap"
+                                        MaxHeight="100"
+                                        TextTrimming="CharacterEllipsis"
+                                        Foreground="White"
+                                        />
+                          </Grid>
+                          <Rectangle x:Name="BorderBottom"
+                                    Grid.Row="2"
+                                    Height="1"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Bottom"
+                                    Fill="Silver" />
+                      </StackPanel>
+                  </Grid>
+              </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Grid.Resources>
+    
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="1*"/>
+        <ColumnDefinition Width="3*"/>
+    </Grid.ColumnDefinitions>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <zones:WindowTabs>
+      <zones:WindowTabs.ItemsSource>
+        <CompositeCollection>
+          <zones:ZoneElement Content="{Binding ViewModel, Source={x:Reference SideStack}}"/>
+          <CollectionContainer Collection="{Binding Windows, Source={x:Reference SideSingle}}"/>
+        </CompositeCollection>
+      </zones:WindowTabs.ItemsSource>
+    </zones:WindowTabs>
+
+    <Grid Grid.Row="1" zones:Layout.IsUnderlay="True">
+      <Grid Background="Black">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- <widgets:WebView Height="200" URL="https://www.youtube.com/tv"/> -->
+
+        <TextBlock Grid.Row="1" Foreground="White">
+            <!-- <Run Text="{Binding ContentTimestamp, Source={StaticResource HanselmanAtom}, Mode=OneWay}"/>; -->
+            next update: <Run Text="{Binding Expiration, Source={StaticResource HanselmanAtom}, Mode=OneWay}"/>
+        </TextBlock>
+
+        <ListView
+            ItemsSource="{Binding Content,
+                            Source={StaticResource HanselmanAtom},
+                            Converter={StaticResource XmlParser},
+                            ConverterParameter=rss.channel.item, IsAsync=True}"
+            DisplayMemberPath="title"
+        />
+
+        <TextBlock Grid.Row="1" Foreground="White" HorizontalAlignment="Right"
+          Text="{Binding Content,
+                  Source={StaticResource HanselmanAtom},
+                  Converter={StaticResource XmlParser},
+                  ConverterParameter=rss.channel.lastBuildDate,
+                  IsAsync=True}"
+          />
+
+        <ItemsControl Grid.Row="2"
+          ItemsSource="{Binding Content, Source={StaticResource HanselmanAtom}, Converter={StaticResource XmlParser},
+           ConverterParameter=rss.channel.item, IsAsync=True}"
+          ItemTemplate="{StaticResource ArticleItemViewTemplate}"
+          />
+      </Grid>
+
+      <zones:Zone x:Name="SideSingle" Id="Side" />
+      <zones:Zone x:Name="SideStack" Id="Side Stack">
+        <zones:Zone.Layout>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="1"/>
+          </ItemsPanelTemplate>
+        </zones:Zone.Layout>
+      </zones:Zone>
+
+      <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+          Width="160" Height="160" Background="#44F" zones:Layout.IsHint="True">
+        <!-- Find more symbols from Segoe UI Symbol in Character Map app -->
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                    FontFamily="Segoe UI Symbol" Foreground="White" Text="" FontSize="80"/>
+      </Border>
+      <zones:Zone HorizontalAlignment="Center" VerticalAlignment="Center"
+                  Width="160" Height="160"
+                  Target="{Binding ElementName=SideSingle}"/>
+    </Grid>
+  </Grid>
+
+  <Grid Grid.Column="1">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+    
+    <zones:WindowTabs>
+      <zones:WindowTabs.ItemsSource>
+        <CompositeCollection>
+          <CollectionContainer Collection="{Binding Windows, Source={x:Reference Main}}"/>
+          <CollectionContainer Collection="{Binding Windows, Source={x:Reference LeftMain}}"/>
+          <CollectionContainer Collection="{Binding Windows, Source={x:Reference RightMain}}"/>
+          <CollectionContainer Collection="{Binding Windows, Source={x:Reference TopMain}}"/>
+          <CollectionContainer Collection="{Binding Windows, Source={x:Reference BottomMain}}"/>
+        </CompositeCollection>
+      </zones:WindowTabs.ItemsSource>
+    </zones:WindowTabs>
+  
+    <zones:Zone x:Name="Main" Grid.Row="1" behavior:Hotkey.MoveTo="Windows+Oem5"/>
+
+    <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <zones:Zone x:Name="LeftMain" Grid.Column="0" Grid.RowSpan="2"/>
+        <zones:Zone x:Name="RightMain" Grid.Column="1" Grid.RowSpan="2"/>
+        <zones:Zone x:Name="TopMain" Grid.Row="0" Grid.ColumnSpan="2"/>
+        <zones:Zone x:Name="BottomMain" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+        <zones:Zone Grid.Column="0" Grid.Row="0"/>
+        <zones:Zone Grid.Column="1" Grid.Row="0"/>
+        <zones:Zone Grid.Column="0" Grid.Row="1"/>
+        <zones:Zone Grid.Column="1" Grid.Row="1"/>
+
+        <zones:Zone Grid.Column="0" Grid.RowSpan="2"
+                    Margin="{Binding Source={StaticResource GripSize}, Converter={StaticResource ThicknessConverter}}"
+                    Target="{Binding ElementName=LeftMain}"/>
+        <zones:Zone Grid.Column="1" Grid.RowSpan="2"
+                    Margin="{Binding Source={StaticResource GripSize}, Converter={StaticResource ThicknessConverter}}"
+                    Target="{Binding ElementName=RightMain}"/>
+        
+        <Border Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Width="{StaticResource GripSize}" Background="#44F"
+                zones:Layout.IsHint="True">
+            <!-- Find more symbols from Segoe UI Symbol in Character Map app -->
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontFamily="Segoe UI Symbol" Foreground="White" Text="" FontSize="{StaticResource GripFontSize}"/>
+        </Border>
+        <zones:Zone Grid.Row="0" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Center" Width="{StaticResource GripSize}"
+                    Target="{Binding ElementName=TopMain}"/>
+        <Border Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Width="{StaticResource GripSize}" Background="#44F"
+                zones:Layout.IsHint="True">
+            <!-- Find more symbols from Segoe UI Symbol in Character Map app -->
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontFamily="Segoe UI Symbol" Foreground="White" Text="" FontSize="{StaticResource GripFontSize}"/>
+        </Border>
+        <zones:Zone Grid.Row="1" Grid.ColumnSpan="2"
+                    HorizontalAlignment="Center" Width="{StaticResource GripSize}"
+                    Target="{Binding ElementName=BottomMain}"/>
+    </Grid>
+
+    <Border Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+            zones:Layout.IsHint="True"
+            Width="160" Height="160" Background="#44F">
+        <!-- Find more symbols from Segoe UI Symbol in Character Map app -->
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontFamily="Segoe UI Symbol" Foreground="White" Text="" FontSize="80"/>
+    </Border>
+    <zones:Zone Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="160" Height="160"
+                Target="{Binding ElementName=Main}"/>
+  </Grid>
+</Grid>
