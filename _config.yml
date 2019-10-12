@@ -18,12 +18,12 @@ avatar: /images/stack-logo.jpg
 # Includes an icon in the footer for each username you enter
 footer-links:
   dribbble:
-  email: lost@losttech.software
+  email: contact@losttech.software
   facebook:
   flickr:
   github: losttech
   instagram:
-  linkedin:
+  linkedin: victor-msu
   pinterest:
   rss: feed # just type anything here for a working RSS icon
   twitter:
@@ -34,7 +34,7 @@ footer-links:
 
 # Enter your Disqus shortname (not your username) to enable commenting on posts
 # You can find your shortname on the Settings page of your Disqus account
-disqus:
+disqus: losttech
 
 # Enter your Google Analytics web tracking code (e.g. UA-2110908-2) to activate tracking
 google_analytics: UA-107799728-1
